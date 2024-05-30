@@ -14,7 +14,7 @@ var (
 
 func main() {
 	e := echo.New()
-	e.Static("/file", "/students.txt")
+	e.File("/file", "students.txt")
 	e.GET("/", func(c echo.Context) error {
 		data, err := utils.LoadAllData()
 		if err != nil {
