@@ -1,0 +1,43 @@
+package views
+
+import "HashingTableStudent/model"
+
+templ Index(data model.HashTableData, err string){
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>CRUD Student</title>
+  </head>
+  <body>
+    <main>
+      <div class="md:container md:mx-auto" id="main">
+        <div>@students(data)</div>
+        <h1>{err}</h1>
+        <br><br><hr>
+
+
+        <input id="hashinput" name="hashinput" placeholder="Student Number ..." type="text" class="rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm">
+                  <button hx-get="/student/hash" hx-target="#hashData" hx-swap="innerHTML" hx-include="#hashinput" hx-indicator="#processing" class="inline-flex items-center h-10 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-orange-700 rounded-lg focus:shadow-outline hover:bg-orange-800"> Calculate Hash </button>
+                  <br><hr>
+                  <div>
+                    <h3 id="hashData"></h3>
+                  </div>
+
+                  <a href="/file" class="text-cyan-700">View File</a>
+                  <br>
+                  <a href="https://github.com/Haji-sudo/StudentHashTable" class="text-cyan-700">View SourceCode</a>
+
+
+                  <h1>Alireza Bahari</h1>
+      </div>
+
+    </main>
+  </body>
+</html>
+
+}

@@ -1,0 +1,138 @@
+package views
+
+import "HashingTableStudent/model"
+import "fmt"
+templ row(student model.Student,hashID string){
+    <tr id="datarow-{student.StudentNumber}" class="border-b dark:border-neutral-500">
+   <td class="whitespace-nowrap px-6 py-4">{hashID}</td>
+  <td class="whitespace-nowrap px-6 py-4">{student.StudentNumber}</td>
+  <td class="whitespace-nowrap px-6 py-4">{student.Name} {student.LastName}</td>
+  <td class="whitespace-nowrap px-6 py-4">{student.NationalCode}</td>
+  <td class="whitespace-nowrap px-6 py-4">{fmt.Sprint(student.EnteringYear)}</td>
+  <td class="whitespace-nowrap px-6 py-4">{fmt.Sprint(student.GPA)}</td>
+  <td class="whitespace-nowrap px-1 py-1">
+    <button hx-get={ string(templ.URL(fmt.Sprintf("/student/edit/%s", student.StudentNumber)))} hx-target="#main" hx-indicator="#processing" class="inline-flex items-center h-8 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-blue-700 rounded-lg focus:shadow-outline hover:bg-blue-800"> Edit </button>
+  </td>
+  <td class="whitespace-nowrap px-1 py-1">
+    <button hx-get={ string(templ.URL(fmt.Sprintf("/student/delete/%s", student.StudentNumber)))} hx-target="#main" hx-confirm={fmt.Sprintf("Are you sure you want to delete %s %s?",student.Name,student.LastName)} class="inline-flex items-center h-8 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-red-700 rounded-lg focus:shadow-outline hover:bg-red-800"> Delete </button>
+  </td>
+</tr>
+
+}
+
+
+templ RowEdit(student model.Student){
+<form action="/student/add" method="post">
+      <div class="mx-auto my-10 rounded-lg shadow p-10 max-w-lg">
+        <div class="mb-6">
+          <label for="StudentNumber" class="text-gray-700 font-medium">Student Number</label>
+          <input id="StudentNumber" name="StudentNumber" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" readonly
+          value={student.StudentNumber}>
+        </div>
+        <div class="mb-6">
+          <label for="Name" class="text-gray-700 font-medium">Name</label>
+          <input id="Name" name="Name" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full"
+          value={student.Name}>
+        </div>
+
+        <div class="mb-6">
+          <label for="LastName" class="text-gray-700 font-medium">LastName</label>
+          <input id="LastName" name="LastName" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full"
+          value={student.LastName}>
+        </div>
+        <div class="mb-6">
+          <label for="NationalCode" class="text-gray-700 font-medium">NationalCode</label>
+          <input id="NationalCode" name="NationalCode" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full"
+          value={student.NationalCode}>
+        </div>
+        <div class="mb-6">
+          <label for="EnteringYear" class="text-gray-700 font-medium">EnteringYear</label>
+          <input id="EnteringYear" name="EnteringYear" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full"
+          value={fmt.Sprint(student.EnteringYear)}>
+        </div>
+        <div class="mb-6">
+          <label for="GPA" class="text-gray-700 font-medium">GPA</label>
+          <input id="GPA" name="GPA" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full"
+          value={fmt.Sprint(student.GPA)}>
+        </div>
+        <input type="submit" value="Edit" hx-indicator="#processing" class="bg-blue-700 py-2 rounded text-white my-2 px-4 w-full">
+        <button class="bg-blue-700 py-2 rounded text-white my-2 px-4 w-full" hx-get="/" hx-target="#main">Cancel</button>
+      </div>
+    </form>
+}
+
+templ RowAdd(){
+    <form action="/student/add" method="post">
+
+      <div class="mx-auto my-10 rounded-lg shadow p-10 max-w-lg">
+        <div class="mb-6">
+          <label for="StudentNumber" class="text-gray-700 font-medium">Student Number</label>
+          <input id="StudentNumber" name="StudentNumber" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full">
+        </div>
+        <div class="mb-6">
+          <label for="Name" class="text-gray-700 font-medium">Name</label>
+          <input id="Name" name="Name" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full">
+        </div>
+
+        <div class="mb-6">
+          <label for="LastName" class="text-gray-700 font-medium">LastName</label>
+          <input id="LastName" name="LastName" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full">
+        </div>
+        <div class="mb-6">
+          <label for="NationalCode" class="text-gray-700 font-medium">NationalCode</label>
+          <input id="NationalCode" name="NationalCode" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full">
+        </div>
+        <div class="mb-6">
+          <label for="EnteringYear" class="text-gray-700 font-medium">EnteringYear</label>
+          <input id="EnteringYear" name="EnteringYear" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full">
+        </div>
+        <div class="mb-6">
+          <label for="GPA" class="text-gray-700 font-medium">GPA</label>
+          <input id="GPA" name="GPA" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full">
+        </div>
+
+        <input type="submit" value="Add" hx-indicator="#processing" class="bg-blue-700 py-2 rounded text-white my-2 px-4 w-full">
+        <button class="bg-blue-700 py-2 rounded text-white my-2 px-4 w-full" hx-get="/" hx-target="#main">Cancel</button>
+      </div>
+    </form>
+}
+
+templ RowShow(student model.Student,err string){
+<form >
+      <div class="mx-auto my-10 rounded-lg shadow p-10 max-w-lg">
+        <div class="mb-6">
+          <label for="StudentNumber" class="text-gray-700 font-medium">Student Number</label>
+          <input id="StudentNumber" name="StudentNumber" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" disabled
+          value={student.StudentNumber}>
+        </div>
+        <div class="mb-6">
+          <label for="Name" class="text-gray-700 font-medium">Name</label>
+          <input id="Name" name="Name" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" disabled
+          value={student.Name}>
+        </div>
+
+        <div class="mb-6">
+          <label for="LastName" class="text-gray-700 font-medium">LastName</label>
+          <input id="LastName" name="LastName" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" disabled
+          value={student.LastName}>
+        </div>
+        <div class="mb-6">
+          <label for="NationalCode" class="text-gray-700 font-medium">NationalCode</label>
+          <input id="NationalCode" name="NationalCode" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" disabled
+          value={student.NationalCode}>
+        </div>
+        <div class="mb-6">
+          <label for="EnteringYear" class="text-gray-700 font-medium">EnteringYear</label>
+          <input id="EnteringYear" name="EnteringYear" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" disabled
+          value={fmt.Sprint(student.EnteringYear)}>
+        </div>
+        <div class="mb-6">
+          <label for="GPA" class="text-gray-700 font-medium">GPA</label>
+          <input id="GPA" name="GPA" type="text" class="block rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm w-full" disabled
+          value={fmt.Sprint(student.GPA)}>
+        </div>
+        <h2>{err}</h2>
+        <button class="bg-blue-700 py-2 rounded text-white my-2 px-4 w-full" hx-get="/" hx-target="#main">Back</button>
+      </div>
+    </form>
+}

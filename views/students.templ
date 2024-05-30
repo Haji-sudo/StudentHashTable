@@ -1,0 +1,45 @@
+package views
+
+import "HashingTableStudent/model"
+import "fmt"
+
+templ students(data model.HashTableData){
+<div id="students">
+    <div id="processing" class="htmx-indicator">Processing...</div>
+    <div class="flex flex-col">
+        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+            <div class="overflow-hidden">
+            <div class="flex justify-start">
+                 <input id="StudentNumber" name="StudentNumber" placeholder="Student Number ..." type="text" class="rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm">
+                 <button hx-get="/student/find" hx-target="#main" hx-include="#StudentNumber" hx-indicator="#processing" class="inline-flex items-center h-10 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-blue-700 rounded-lg focus:shadow-outline hover:bg-blue-800"> Search </button>
+             </div>
+            <div class="flex justify-end">
+                <button hx-get="/student/add" hx-target="#main" hx-indicator="#processing" class="inline-flex items-center h-8 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-green-700 rounded-lg focus:shadow-outline hover:bg-green-800"> Add+ </button>
+            </div>
+        <table class="min-w-full text-left text-sm font-light">
+            <thead class="border-b font-medium dark:border-neutral-500">
+            <tr>
+            <th scope="col" class="px-6 py-4">HashID</th>
+            <th scope="col" class="px-6 py-4">Student Number</th>
+            <th scope="col" class="px-6 py-4">FullName</th>
+            <th scope="col" class="px-6 py-4">NationalCode</th>
+            <th scope="col" class="px-6 py-4">Entering Year</th>
+            <th scope="col" class="px-6 py-4">GPA</th>
+            </tr>
+            </thead>
+            <tbody id="table-body">
+                for hashID, item := range data{
+                        for _, it := range item {
+                        @row(it,fmt.Sprint(hashID))
+                    }
+                }
+            
+            </tbody>
+        </table>
+    </div>
+    </div>
+    </div>
+</div>
+</div>
+}
