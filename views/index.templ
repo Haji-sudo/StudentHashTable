@@ -22,18 +22,18 @@ templ Index(data model.HashTableData, err string){
 
 
         <input id="hashinput" name="hashinput" placeholder="Student Number ..." type="text" class="rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm">
-                  <button hx-get="/student/hash" hx-target="#hashData" hx-swap="innerHTML" hx-include="#hashinput" hx-indicator="#processing" class="inline-flex items-center h-10 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-orange-700 rounded-lg focus:shadow-outline hover:bg-orange-800"> Calculate Hash </button>
-                  <br><hr>
-                  <div>
-                    <h3 id="hashData"></h3>
-                  </div>
-
-                  <a href="/file" class="text-cyan-700">View File</a>
-                  <br>
-                  <a href="https://github.com/Haji-sudo/StudentHashTable" class="text-cyan-700">View SourceCode</a>
-
-
-                  <h1>Alireza Bahari</h1>
+                 <button hx-get="/student/hash" hx-target="#hashData" hx-swap="innerHTML" hx-include="#hashinput" hx-indicator="#processing" class="inline-flex items-center h-10 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-orange-700 rounded-lg focus:shadow-outline hover:bg-orange-800"> Calculate Hash </button>
+                 <input id="targetinput" name="targetinput" placeholder="Target Hash ..." type="text" class="rounded-md border border-gray-300 py-2 px-4 my-2 shadow-sm">
+                   <button hx-get="/student/collision" hx-target="#hashData" hx-swap="innerHTML" hx-include="#targetinput" hx-indicator="#processing" class="inline-flex items-center h-10 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-emerald-500 rounded-lg focus:shadow-outline hover:bg-emerald-700"> Find Random Collisions </button>
+                 <br><hr>
+                 <div>
+                   <h3 id="hashData"></h3>
+                 </div>
+                  <br><br><br><br>
+                 <a href="/file" class="text-cyan-700">View File</a>
+                 <br>
+                 <a href="https://github.com/Haji-sudo/StudentHashTable" class="text-cyan-700">View Source Code</a>
+                 <h1>Alireza Bahari</h1>
       </div>
 
     </main>

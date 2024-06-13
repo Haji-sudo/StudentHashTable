@@ -13,9 +13,10 @@ import (
 )
 
 const (
-	hashSize = 100
-	filename = "students.txt"
-	MaxLines = 99
+	hashSize    = 100
+	filename    = "students.txt"
+	MaxLines    = 99
+	DeleteValue = "Null"
 )
 
 var (
@@ -37,7 +38,7 @@ func LoadAllData() (model.HashTableData, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line == "" {
+		if line == "" || line == DeleteValue {
 			continue
 		}
 		var student model.Student
@@ -134,7 +135,7 @@ func writeLine(file *os.File, lineNumber int, student model.Student) (int, error
 	startIndex := l
 	foundEmpty := false
 	for {
-		if lines[l] == "" {
+		if lines[l] == "" || lines[l] == DeleteValue {
 			lines[l] = marshalStudent(student)
 			foundEmpty = true
 			break
@@ -180,7 +181,7 @@ func readLineWithCondition(file *os.File, startLine int, studentNumber string) (
 		}
 
 		line := scanner.Text()
-		if line == "" {
+		if line == "" || line == DeleteValue {
 			continue
 		}
 
@@ -220,7 +221,7 @@ func deleteLine(file *os.File, lineNumber int) (int, error) {
 	}
 
 	// Clear the line by setting it to an empty string
-	lines[lineNumber-1] = ""
+	lines[lineNumber-1] = DeleteValue
 
 	// Write the updated lines back to the file
 	output := []byte(strings.Join(lines, "\n") + "\n")

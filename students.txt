@@ -1,11 +1,15 @@
 
-{"StudentNumber":"13244","NationalCode":"89753489475","Name":"Mohammad","LastName":"Rezaee","EnteringYear":2002,"GPA":19}
+Null
+{"StudentNumber":"111","NationalCode":"568654","Name":"Alireza","LastName":"Sobhi","EnteringYear":2010,"GPA":18}
 
 
 
 
 
 
+{"StudentNumber":"165","NationalCode":"8","Name":"Alireza","LastName":"Bahari","EnteringYear":1398,"GPA":18}
+{"StudentNumber":"226","NationalCode":"5","Name":"mmd2","LastName":"Sobhi","EnteringYear":2020,"GPA":10}
+{"StudentNumber":"198","NationalCode":"45464","Name":"javad","LastName":"nn2","EnteringYear":2080,"GPA":15}
 
 
 
@@ -54,11 +58,11 @@
 
 
 
+Null
 
 
 
 
-{"StudentNumber":"756h56h","NationalCode":"89753489475","Name":"Ali","LastName":"Javan","EnteringYear":2010,"GPA":18}
 
 
 
@@ -89,11 +93,7 @@
 
 
 
-
-
-
-
-
+Null
 
 
 

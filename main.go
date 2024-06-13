@@ -4,8 +4,11 @@ import (
 	"HashingTableStudent/model"
 	"HashingTableStudent/utils"
 	"HashingTableStudent/views"
-	"github.com/labstack/echo/v4"
+	"fmt"
 	"strconv"
+	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 var (
@@ -27,6 +30,7 @@ func main() {
 	stu.GET("/add", func(c echo.Context) error {
 		return views.RowAdd().Render(c.Request().Context(), c.Response())
 	})
+
 	stu.GET("/find", func(c echo.Context) error {
 		studentNumber := c.FormValue("StudentNumber")
 		st, line, err := utils.SearchStudent(studentNumber)
@@ -41,7 +45,7 @@ func main() {
 	stu.GET("/edit/:studentNumber", func(c echo.Context) error {
 		studentNumber := c.Param("studentNumber")
 		st, line, err := utils.SearchStudent(studentNumber)
-		if err != nil {
+		if err != nil && !strings.Contains(err.Error(), "conflict") {
 			errorData = err.Error()
 			return c.Redirect(302, "/")
 		} else if line == 0 {
@@ -87,6 +91,29 @@ func main() {
 		studentNumber := c.FormValue("hashinput")
 		return c.String(200, strconv.Itoa(utils.Hash(studentNumber)))
 	})
+	stu.GET("/collision", func(c echo.Context) error {
+		target, err := strconv.Atoi(c.FormValue("targetinput"))
+		if err != nil {
+			errorData = err.Error()
+			return c.Redirect(302, "/")
+		}
+		col := findCollisions(target, 5)
+		return c.String(200, strings.Join(col, ", "))
+	})
 
 	e.Logger.Fatal(e.Start(":8001"))
+}
+
+func findCollisions(targetHash int, count int) []string {
+	collisions := []string{}
+	i := 0
+	for len(collisions) < count {
+		str := fmt.Sprintf("%d", i)
+		if utils.Hash(str) == targetHash {
+			collisions = append(collisions, str)
+		}
+		i++
+	}
+
+	return collisions
 }
