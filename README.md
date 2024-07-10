@@ -1,10 +1,3 @@
-**HashTable Project**
-=====================
-
-This project is a simple implementation of a HashTable in Go, designed to store student details in a text file.
-The hash function used is the [Fastest Hash Function (FNv)](https://en.wikipedia.org/wiki/Fnv-1a), which provides
-a fast and robust way to map strings to integers.
-
 **Project Overview**
 -------------------
 
@@ -30,12 +23,7 @@ The hash function works as follows:
 3. The final hash value is calculated by taking the sum modulo `hashSize`, which is set to 100 in this project.
 4. Add 1 to the result to ensure it's within the range of 1 to 100.
 
-**Features**
----------
-
-* Simple implementation of a HashTable with automatic line allocation
-* Fast and robust hash function using FNv-1a
-* Stores student details in a text file
+https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV_hash_parameters
 
 **Example Usage**
 -----------------
@@ -45,18 +33,10 @@ no available line at index 10, the HashTable will automatically allocate a new l
 
 ```
 Line 1: (empty)
-Line 2: John
-Line 3: Jane
+Line 2: {"StudentNumber":"84","NationalCode":"0925467484","Name":"Alireza","LastName":"Bahari","EnteringYear":1398,"GPA":18}
+Line 3: Null
 ...
 Line 10: (empty)
-Line 11: New Student
+Line 11: {"StudentNumber":"89","NationalCode":"0925646848","Name":"Mohammad","LastName":"Jobrani","EnteringYear":1399,"GPA":17}
 ...
 ```
-
-**Why FNV-1a?**
--------------
-
-The FNV-1a hash function was chosen for its speed, simplicity, and low memory usage. It's also a widely-used and
-well-established hash function that provides good distribution properties.
-
-I hope this helps! Let me know if you have any questions or need further clarification.
