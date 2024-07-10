@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash/fnv"
 	"os"
 	"strings"
 	"sync"
@@ -24,9 +23,15 @@ var (
 )
 
 func Hash(s string) int {
-	h := fnv.New32a()
-	h.Write([]byte(s))
-	return int(h.Sum32()%hashSize) + 1
+	//https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV_hash_parameters
+	var hash uint32 = 2166136261
+	const prime32 = 16777619
+
+	for i := 0; i < len(s); i++ {
+		hash ^= uint32(s[i])
+		hash *= prime32
+	}
+	return int(hash%hashSize) + 1
 }
 
 func LoadAllData() (model.HashTableData, error) {
