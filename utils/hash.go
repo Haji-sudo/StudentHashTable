@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -84,7 +85,7 @@ func SearchStudent(studentNumber string) (*model.Student, int, error) {
 	lineNumber := Hash(studentNumber)
 	file := getFile()
 	defer file.Close()
-	st, l, err := readLineWithCondition(file, lineNumber, studentNumber)
+	st, l, err := readLine(file, lineNumber, studentNumber)
 	if err != nil {
 		return nil, 0, err
 	} else if l == 0 {
@@ -95,13 +96,12 @@ func SearchStudent(studentNumber string) (*model.Student, int, error) {
 	return st, l, nil
 }
 
-// DeleteStudent deletes a student record based on the student number.
 func DeleteStudent(studentNumber string) (int, error) {
 	mu.Lock()
 	defer mu.Unlock()
 	file := getFile()
 	defer file.Close()
-	_, lineNumber, err := readLineWithCondition(file, 1, studentNumber)
+	_, lineNumber, err := readLine(file, 1, studentNumber)
 	if err != nil {
 		return 0, err
 	}
@@ -114,90 +114,96 @@ func DeleteStudent(studentNumber string) (int, error) {
 	return ll, err
 }
 
-// writeLine writes a student's information to a specific line number in a file
-// If the line is already occupied, it tries to find the next available line or update existing student info
-// Returns the line number where the student's information was written or updated
 func writeLine(file *os.File, lineNumber int, student model.Student) (int, error) {
-	// Read all lines from the file
-	var lines []string
+	lines := make([]string, MaxLines)
 	scanner := bufio.NewScanner(file)
+
+	currentLine := 0
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		if currentLine >= MaxLines {
+			break
+		}
+		lines[currentLine] = scanner.Text()
+		currentLine++
 	}
 	if err := scanner.Err(); err != nil {
 		return 0, err
 	}
 
-	// Fill up lines with empty strings up to MaxLines if necessary
-	if len(lines) < MaxLines {
-		for i := len(lines); i < MaxLines; i++ {
-			lines = append(lines, "")
-		}
+	for i := currentLine; i < MaxLines; i++ {
+		lines[i] = ""
 	}
 
-	// Check if the target line already contains data
-	l := lineNumber - 1
+	l := (lineNumber - 1) % MaxLines
 	startIndex := l
-	foundEmpty := false
+
 	for {
 		if lines[l] == "" || lines[l] == DeleteValue {
 			lines[l] = marshalStudent(student)
-			foundEmpty = true
 			break
 		} else {
 			var existingStudent model.Student
-			err := json.Unmarshal([]byte(lines[l]), &existingStudent)
-			if err == nil && existingStudent.StudentNumber == student.StudentNumber {
-				// Update the existing student's information
+			if err := json.Unmarshal([]byte(lines[l]), &existingStudent); err == nil &&
+				existingStudent.StudentNumber == student.StudentNumber {
 				lines[l] = marshalStudent(student)
-				foundEmpty = true
 				break
 			}
 		}
-
 		l = (l + 1) % MaxLines
 		if l == startIndex {
-			break
+			return 0, errors.New("no empty line available")
 		}
 	}
-	// Return error if no empty line was found
-	if !foundEmpty {
-		return 0, errors.New("no empty line available")
-	}
-	// Write the updated lines back to the file
+
 	output := []byte(strings.Join(lines, "\n") + "\n")
-	if err := os.WriteFile(filename, output, 0644); err != nil {
+	if err := os.WriteFile(file.Name(), output, 0644); err != nil {
 		return 0, err
 	}
 
 	return l + 1, nil
 }
 
-// readLineWithCondition reads a line from the provided file starting from the specified line number
-// and checks if the student number matches the given studentNumber.
-// If a matching student is found, it returns the student, the line number where the student was found, and nil error.
-// If no matching student is found, it returns nil values and nil error.
-func readLineWithCondition(file *os.File, startLine int, studentNumber string) (*model.Student, int, error) {
+func readLine(file *os.File, startLine int, studentNumber string) (*model.Student, int, error) {
 	scanner := bufio.NewScanner(file)
 	var currentLine int
-	for currentLine = 1; scanner.Scan(); currentLine++ {
-		if currentLine < startLine {
-			continue
-		}
-
-		line := scanner.Text()
+	var foundStudent *model.Student
+	checkLine := func(line string) bool {
 		if line == "" || line == DeleteValue {
-			continue
+			return false
 		}
 
 		var student model.Student
 		err := json.Unmarshal([]byte(line), &student)
 		if err != nil {
-			continue
+			return false
 		}
 
 		if student.StudentNumber == studentNumber {
-			return &student, currentLine, nil
+			foundStudent = &student
+			return true
+		}
+		return false
+	}
+	file.Seek(0, io.SeekStart)
+	scanner = bufio.NewScanner(file)
+	for currentLine = 1; scanner.Scan(); currentLine++ {
+		if currentLine < startLine {
+			continue
+		}
+
+		if checkLine(scanner.Text()) {
+			return foundStudent, currentLine, nil
+		}
+	}
+	file.Seek(0, io.SeekStart)
+	scanner = bufio.NewScanner(file)
+	for currentLine = 1; scanner.Scan(); currentLine++ {
+		if currentLine >= startLine {
+			break
+		}
+
+		if checkLine(scanner.Text()) {
+			return foundStudent, currentLine, nil
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -207,30 +213,35 @@ func readLineWithCondition(file *os.File, startLine int, studentNumber string) (
 	return nil, 0, nil
 }
 
-// deleteLine deletes a specific line in a file and writes the updated content back to the file.
-// It takes a file pointer and the line number to delete as input.
 func deleteLine(file *os.File, lineNumber int) (int, error) {
-	var lines []string
+	lineIndex := lineNumber - 1
+	if lineIndex < 0 || lineIndex >= MaxLines {
+		return 0, errors.New("line number out of range")
+	}
+
+	lines := make([]string, MaxLines)
 	scanner := bufio.NewScanner(file)
+
+	currentLine := 0
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		if currentLine >= MaxLines {
+			break
+		}
+		lines[currentLine] = scanner.Text()
+		currentLine++
 	}
 	if err := scanner.Err(); err != nil {
 		return 0, err
 	}
-	// If the file has less lines than MaxLines, pad with empty lines
-	if len(lines) < MaxLines {
-		for i := len(lines); i < MaxLines; i++ {
-			lines = append(lines, "")
-		}
+
+	for i := currentLine; i < MaxLines; i++ {
+		lines[i] = ""
 	}
 
-	// Clear the line by setting it to an empty string
-	lines[lineNumber-1] = DeleteValue
+	lines[lineIndex] = DeleteValue
 
-	// Write the updated lines back to the file
 	output := []byte(strings.Join(lines, "\n") + "\n")
-	if err := os.WriteFile(filename, output, 0644); err != nil {
+	if err := os.WriteFile(file.Name(), output, 0644); err != nil {
 		return 0, err
 	}
 
