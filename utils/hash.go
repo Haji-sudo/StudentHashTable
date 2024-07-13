@@ -16,7 +16,8 @@ const (
 	hashSize    = 100
 	filename    = "students.txt"
 	MaxLines    = 99
-	DeleteValue = "Null"
+	DeletedFlag = "deleted"
+	ActiveFlag  = "null"
 )
 
 var (
@@ -24,7 +25,6 @@ var (
 )
 
 func Hash(s string) int {
-	//https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV_hash_parameters
 	var hash uint32 = 2166136261
 	const prime32 = 16777619
 
@@ -44,11 +44,12 @@ func LoadAllData() (model.HashTableData, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line == "" || line == DeleteValue {
+		parts := strings.Split(line, ",")
+		if len(parts) != 2 || parts[1] == DeletedFlag {
 			continue
 		}
 		var student model.Student
-		err := json.Unmarshal([]byte(line), &student)
+		err := json.Unmarshal([]byte(parts[0]), &student)
 		if err != nil {
 			continue
 		}
@@ -62,6 +63,7 @@ func LoadAllData() (model.HashTableData, error) {
 
 	return hashTable, nil
 }
+
 func AddOrEditStudent(st model.Student) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -78,6 +80,7 @@ func AddOrEditStudent(st model.Student) {
 		fmt.Println("Because conflict data stored in line : ", line)
 	}
 }
+
 func SearchStudent(studentNumber string) (*model.Student, int, error) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -138,14 +141,15 @@ func writeLine(file *os.File, lineNumber int, student model.Student) (int, error
 	startIndex := l
 
 	for {
-		if lines[l] == "" || lines[l] == DeleteValue {
-			lines[l] = marshalStudent(student)
+		parts := strings.Split(lines[l], ",")
+		if len(parts) != 2 || parts[1] == DeletedFlag {
+			lines[l] = marshalStudent(student) + "," + ActiveFlag
 			break
 		} else {
 			var existingStudent model.Student
-			if err := json.Unmarshal([]byte(lines[l]), &existingStudent); err == nil &&
+			if err := json.Unmarshal([]byte(parts[0]), &existingStudent); err == nil &&
 				existingStudent.StudentNumber == student.StudentNumber {
-				lines[l] = marshalStudent(student)
+				lines[l] = marshalStudent(student) + "," + ActiveFlag
 				break
 			}
 		}
@@ -168,12 +172,19 @@ func readLine(file *os.File, startLine int, studentNumber string) (*model.Studen
 	var currentLine int
 	var foundStudent *model.Student
 	checkLine := func(line string) bool {
-		if line == "" || line == DeleteValue {
+		parts := strings.Split(line, ",")
+		if len(parts) != 2 {
+			return false
+		}
+		if parts[1] == DeletedFlag {
+			return false
+		}
+		if parts[1] != ActiveFlag {
 			return false
 		}
 
 		var student model.Student
-		err := json.Unmarshal([]byte(line), &student)
+		err := json.Unmarshal([]byte(parts[0]), &student)
 		if err != nil {
 			return false
 		}
@@ -238,7 +249,10 @@ func deleteLine(file *os.File, lineNumber int) (int, error) {
 		lines[i] = ""
 	}
 
-	lines[lineIndex] = DeleteValue
+	parts := strings.Split(lines[lineIndex], ",")
+	if len(parts) == 2 {
+		lines[lineIndex] = parts[0] + "," + DeletedFlag
+	}
 
 	output := []byte(strings.Join(lines, "\n") + "\n")
 	if err := os.WriteFile(file.Name(), output, 0644); err != nil {
